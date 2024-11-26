@@ -1,34 +1,122 @@
 #include <iostream>
 #include <queue>
+#include <unordered_map>
+#include <vector>
 using namespace std;
- 
-// Maximum Height of Huffman Tree.
-#define MAX_SIZE 100
- 
-class HuffmanTreeNode {
-public:
-    
-    char data;
- 
+
+struct Node {
+    char ch;
     int freq;
- 
-    
-    HuffmanTreeNode* right;
-    HuffmanTreeNode(char character,
-                    int frequency)
+    Node* left;
+    Node* right;
+    Node(char ch, int freq)
+        : ch(ch)
+        , freq(freq)
+        , left(nullptr)
+        , right(nullptr)
     {
-        data = character;
-        freq = frequency;
-        left = right = NULL;
+    }
+    Node(char ch, int freq, Node* left, Node* right)
+        : ch(ch)
+        , freq(freq)
+        , left(left)
+        , right(right)
+    {
     }
 };
- 
-class Compare {
-public:
-    bool operator()(HuffmanTreeNode* a,
-                    HuffmanTreeNode* b)
+
+// Comparison object to be used to order the heap
+struct compare {
+    bool operator()(Node* l, Node* r)
     {
-        
-        return a->freq > b->freq;
+        return l->freq > r->freq;
     }
 };
+
+void printCodes(Node* root, string str,
+                unordered_map<char, string>& huffmanCode)
+{
+    if (root == nullptr)
+        return;
+
+    if (!root->left && !root->right) {
+        huffmanCode[root->ch] = str;
+    }
+
+    printCodes(root->left, str + "0", huffmanCode);
+    printCodes(root->right, str + "1", huffmanCode);
+}
+
+void buildHuffmanTree(string text)
+{
+    unordered_map<char, int> freq;
+    for (char ch : text) {
+        freq[ch]++;
+    }
+    priority_queue<Node*, vector<Node*>, compare> pq;
+    for (auto pair : freq) {
+        pq.push(new Node(pair.first, pair.second));
+    }
+    while (pq.size() != 1) {
+      
+        Node* left = pq.top();
+        pq.pop();
+        Node* right = pq.top();
+        pq.pop();
+
+
+        int sum = left->freq + right->freq;
+        pq.push(new Node('\0', sum, left, right));
+    }
+
+    Node* root = pq.top();
+
+    unordered_map<char, string> huffmanCode;
+    printCodes(root, "", huffmanCode);
+
+   
+    cout << "Huffman Codes:\n";
+    for (auto pair : huffmanCode) {
+        cout << pair.first << " " << pair.second << "\n";
+    }
+
+    // Print nermucac texty
+    cout << "\nOriginal string:\n" << text << "\n";
+
+    // Print 
+    string str = "";
+    for (char ch : text) {
+        str += huffmanCode[ch];
+    }
+    cout << "\nEncoded string:\n" << str << "\n";
+
+   
+    auto decode = [&](string str) {
+        cout << "\nDecoded string:\n";
+        Node* curr = root;
+        for (char bit : str) {
+            if (bit == '0') {
+                curr = curr->left;
+            }
+            else {
+                curr = curr->right;
+            }
+
+            // terev
+            if (!curr->left && !curr->right) {
+                cout << curr->ch;
+                curr = root;
+            }
+        }
+        cout << "\n";
+    };
+
+    decode(str);
+}
+
+int main()
+{
+    string text = "HUFFMAN";
+    buildHuffmanTree(text);
+    return 0;
+}
