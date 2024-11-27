@@ -25,7 +25,6 @@ struct Node {
     }
 };
 
-// Comparison object to be used to order the heap
 struct compare {
     bool operator()(Node* l, Node* r)
     {
@@ -46,7 +45,6 @@ void printCodes(Node* root, string str, unordered_map<char, string>& huffmanCode
     printCodes(root->right, str + "1", huffmanCode);
 }
 
-// Serialize the Huffman Tree for storing
 void serializeTree(Node* root, string& serialized)
 {
     if (root == nullptr) {
@@ -58,7 +56,6 @@ void serializeTree(Node* root, string& serialized)
     serializeTree(root->right, serialized);
 }
 
-// Deserialize the Huffman Tree
 Node* deserializeTree(string& serialized, int& index)
 {
     if (index >= serialized.size() || serialized[index] == '#') {
@@ -96,17 +93,16 @@ void buildHuffmanTree(string text)
     unordered_map<char, string> huffmanCode;
     printCodes(root, "", huffmanCode);
 
-    // Compress: Encode the string
+    // Compress
     string encodedStr = "";
     for (char ch : text) {
         encodedStr += huffmanCode[ch];
     }
 
-    // Serialize the Huffman Tree
+   
     string serializedTree = "";
     serializeTree(root, serializedTree);
 
-    // Print the results
     cout << "Huffman Codes:\n";
     for (auto pair : huffmanCode) {
         cout << pair.first << " " << pair.second << "\n";
@@ -116,7 +112,7 @@ void buildHuffmanTree(string text)
     cout << "\nEncoded string:\n" << encodedStr << "\n";
     cout << "\nSerialized Tree:\n" << serializedTree << "\n";
 
-    // Decompress: Decode the string
+    
     auto decode = [&](string encodedStr, string serializedTree) {
         int index = 0;
         Node* deserializedRoot = deserializeTree(serializedTree, index);
